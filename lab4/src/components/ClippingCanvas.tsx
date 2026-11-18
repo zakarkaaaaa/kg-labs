@@ -24,7 +24,7 @@ interface ClippingCanvasProps {
 interface ViewState {
   centerX: number
   centerY: number
-  scale: number // pixels per world unit
+  scale: number
 }
 
 function niceStep(rawStep: number): number {
@@ -95,7 +95,6 @@ export function ClippingCanvas({
         if (p.y < minY) minY = p.y
         if (p.y > maxY) maxY = p.y
       }
-      // Include origin if close
       minX = Math.min(minX, 0)
       minY = Math.min(minY, 0)
       maxX = Math.max(maxX, 0)
@@ -115,7 +114,6 @@ export function ClippingCanvas({
     [clipPolygon, isConvexClipper, isPolygonMode, polygonResult, rect, segmentResults]
   )
 
-  // Observe container resize
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
@@ -130,7 +128,6 @@ export function ClippingCanvas({
     return () => ro.disconnect()
   }, [])
 
-  // Auto-fit when scene or fitTrigger changes
   useEffect(() => {
     setView(computeAutoFit(size.width, size.height))
   }, [fitTrigger, computeAutoFit, size.width, size.height])
@@ -151,7 +148,6 @@ export function ClippingCanvas({
     [size.width, size.height, view]
   )
 
-  // Render canvas
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -165,7 +161,7 @@ export function ClippingCanvas({
     ctx.clearRect(0, 0, size.width, size.height)
 
     // Background
-    ctx.fillStyle = '#070b16'
+    ctx.fillStyle = '#09090b'
     ctx.fillRect(0, 0, size.width, size.height)
 
     const topLeft = toWorld(0, 0)
@@ -177,9 +173,9 @@ export function ClippingCanvas({
 
     const step = niceStep(65 / view.scale)
 
-    // Grid lines
+    // Grid
     ctx.lineWidth = 1
-    ctx.strokeStyle = 'rgba(148, 163, 184, 0.11)'
+    ctx.strokeStyle = '#18181b'
     const startX = Math.floor(minWX / step) * step
     for (let x = startX; x <= maxWX + step * 0.5; x += step) {
       const sx = toScreen({ x, y: 0 }).x
@@ -197,41 +193,37 @@ export function ClippingCanvas({
       ctx.stroke()
     }
 
-    // Coordinate Axes
+    // Axes
     const origin = toScreen({ x: 0, y: 0 })
-    ctx.strokeStyle = 'rgba(203, 213, 225, 0.55)'
-    ctx.lineWidth = 1.5
+    ctx.strokeStyle = '#3f3f46'
+    ctx.lineWidth = 1.25
 
-    // X axis
     if (origin.y >= -20 && origin.y <= size.height + 20) {
       ctx.beginPath()
       ctx.moveTo(0, origin.y)
       ctx.lineTo(size.width, origin.y)
       ctx.stroke()
-      // Arrow
       ctx.beginPath()
-      ctx.moveTo(size.width - 10, origin.y - 4)
+      ctx.moveTo(size.width - 9, origin.y - 3.5)
       ctx.lineTo(size.width - 2, origin.y)
-      ctx.lineTo(size.width - 10, origin.y + 4)
+      ctx.lineTo(size.width - 9, origin.y + 3.5)
       ctx.stroke()
     }
-    // Y axis
     if (origin.x >= -20 && origin.x <= size.width + 20) {
       ctx.beginPath()
       ctx.moveTo(origin.x, size.height)
       ctx.lineTo(origin.x, 0)
       ctx.stroke()
-      // Arrow
       ctx.beginPath()
-      ctx.moveTo(origin.x - 4, 10)
+      ctx.moveTo(origin.x - 3.5, 9)
       ctx.lineTo(origin.x, 2)
-      ctx.lineTo(origin.x + 4, 10)
+      ctx.lineTo(origin.x + 3.5, 9)
       ctx.stroke()
     }
 
-    // Axis labels & ticks
+    // Axis ticks
     ctx.font = '11px "JetBrains Mono Variable", monospace'
-    ctx.fillStyle = 'rgba(148, 163, 184, 0.85)'
+    ctx.fillStyle = '#71717a'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'top'
 
@@ -253,7 +245,7 @@ export function ClippingCanvas({
       ctx.fillText(fmtNum(y, 2), clampedAxisX, sy)
     }
 
-    // 1. Clipping Window / Convex Clipper (Cyan)
+    // 1. Clipper (light gray solid + subtle fill)
     const clipVerts = isConvexClipper ? clipPolygon : rectToPolygon(rect)
     if (clipVerts.length >= 3) {
       ctx.save()
@@ -264,17 +256,16 @@ export function ClippingCanvas({
         else ctx.lineTo(sp.x, sp.y)
       })
       ctx.closePath()
-      ctx.fillStyle = 'rgba(34, 211, 238, 0.08)'
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)'
       ctx.fill()
-      ctx.strokeStyle = '#22d3ee'
-      ctx.lineWidth = 2
+      ctx.strokeStyle = '#a1a1aa'
+      ctx.lineWidth = 1.5
       ctx.stroke()
       ctx.restore()
     }
 
-    // 2. Original & Clipped Geometry
+    // 2. Original & Clipped
     if (isPolygonMode && polygonResult) {
-      // Original subject polygon (dashed amber)
       if (polygonResult.original.length >= 3) {
         ctx.save()
         ctx.beginPath()
@@ -284,25 +275,21 @@ export function ClippingCanvas({
           else ctx.lineTo(sp.x, sp.y)
         })
         ctx.closePath()
-        ctx.setLineDash([6, 5])
-        ctx.strokeStyle = 'rgba(245, 158, 11, 0.78)'
-        ctx.lineWidth = 1.8
+        ctx.setLineDash([5, 4])
+        ctx.strokeStyle = '#52525b'
+        ctx.lineWidth = 1.5
         ctx.stroke()
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.06)'
-        ctx.fill()
         ctx.restore()
 
-        // Original vertices
         for (const p of polygonResult.original) {
           const sp = toScreen(p)
           ctx.beginPath()
-          ctx.arc(sp.x, sp.y, 3.5, 0, Math.PI * 2)
-          ctx.fillStyle = '#f59e0b'
+          ctx.arc(sp.x, sp.y, 2.5, 0, Math.PI * 2)
+          ctx.fillStyle = '#71717a'
           ctx.fill()
         }
       }
 
-      // Intermediate polygon from active step (violet)
       if (activeStep?.intermediatePolygon && activeStep.intermediatePolygon.length >= 2) {
         ctx.save()
         ctx.beginPath()
@@ -312,14 +299,13 @@ export function ClippingCanvas({
           else ctx.lineTo(sp.x, sp.y)
         })
         if (activeStep.intermediatePolygon.length >= 3) ctx.closePath()
-        ctx.strokeStyle = '#a78bfa'
-        ctx.lineWidth = 2
-        ctx.setLineDash([4, 3])
+        ctx.strokeStyle = '#d4d4d8'
+        ctx.lineWidth = 1.75
+        ctx.setLineDash([3, 3])
         ctx.stroke()
         ctx.restore()
       }
 
-      // Clipped polygon (solid emerald)
       if (polygonResult.clipped.length >= 3) {
         ctx.save()
         ctx.beginPath()
@@ -329,61 +315,51 @@ export function ClippingCanvas({
           else ctx.lineTo(sp.x, sp.y)
         })
         ctx.closePath()
-        ctx.fillStyle = 'rgba(52, 211, 153, 0.24)'
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.14)'
         ctx.fill()
-        ctx.strokeStyle = '#34d399'
-        ctx.lineWidth = 3
+        ctx.strokeStyle = '#ffffff'
+        ctx.lineWidth = 2.5
         ctx.stroke()
         ctx.restore()
 
         for (const p of polygonResult.clipped) {
           const sp = toScreen(p)
-          ctx.beginPath()
-          ctx.arc(sp.x, sp.y, 4.5, 0, Math.PI * 2)
-          ctx.fillStyle = '#34d399'
-          ctx.fill()
-          ctx.strokeStyle = '#05070f'
-          ctx.lineWidth = 1.5
-          ctx.stroke()
+          ctx.fillStyle = '#ffffff'
+          ctx.fillRect(sp.x - 3, sp.y - 3, 6, 6)
         }
       }
     } else {
-      // Segments mode
       for (const res of segmentResults) {
         const isSelected = selectedSegmentId === res.segmentId
         const s1 = toScreen(res.original.p1)
         const s2 = toScreen(res.original.p2)
 
-        // Original segment (dashed amber)
+        // Original segment (dim dashed)
         ctx.save()
         ctx.beginPath()
         ctx.moveTo(s1.x, s1.y)
         ctx.lineTo(s2.x, s2.y)
-        ctx.setLineDash([6, 5])
-        ctx.strokeStyle = isSelected
-          ? 'rgba(251, 191, 36, 0.95)'
-          : 'rgba(245, 158, 11, 0.55)'
-        ctx.lineWidth = isSelected ? 2.2 : 1.5
+        ctx.setLineDash([4, 4])
+        ctx.strokeStyle = isSelected ? '#71717a' : '#3f3f46'
+        ctx.lineWidth = isSelected ? 1.75 : 1.25
         ctx.stroke()
         ctx.restore()
 
-        // Original endpoints
         for (const sp of [s1, s2]) {
           ctx.beginPath()
-          ctx.arc(sp.x, sp.y, 3, 0, Math.PI * 2)
-          ctx.fillStyle = 'rgba(245, 158, 11, 0.85)'
+          ctx.arc(sp.x, sp.y, 2.5, 0, Math.PI * 2)
+          ctx.fillStyle = '#52525b'
           ctx.fill()
         }
 
-        // Segment ID label near midpoint
         const midS = { x: (s1.x + s2.x) / 2, y: (s1.y + s2.y) / 2 }
         ctx.font = '10px "JetBrains Mono Variable", monospace'
-        ctx.fillStyle = isSelected ? '#fde68a' : 'rgba(203, 213, 225, 0.7)'
+        ctx.fillStyle = isSelected ? '#e4e4e7' : '#71717a'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'bottom'
         ctx.fillText(`#${res.segmentId}`, midS.x, midS.y - 5)
 
-        // Clipped visible part (solid emerald)
+        // Clipped visible part (pure white solid)
         if (res.clipped) {
           const c1 = toScreen(res.clipped[0])
           const c2 = toScreen(res.clipped[1])
@@ -391,25 +367,18 @@ export function ClippingCanvas({
           ctx.beginPath()
           ctx.moveTo(c1.x, c1.y)
           ctx.lineTo(c2.x, c2.y)
-          ctx.strokeStyle = '#34d399'
-          ctx.lineWidth = isSelected ? 4 : 3
-          ctx.lineCap = 'round'
+          ctx.strokeStyle = '#ffffff'
+          ctx.lineWidth = isSelected ? 3.5 : 2.5
           ctx.stroke()
           ctx.restore()
 
           for (const cp of [c1, c2]) {
-            ctx.beginPath()
-            ctx.arc(cp.x, cp.y, 4.5, 0, Math.PI * 2)
-            ctx.fillStyle = '#34d399'
-            ctx.fill()
-            ctx.strokeStyle = '#05070f'
-            ctx.lineWidth = 1.5
-            ctx.stroke()
+            ctx.fillStyle = '#ffffff'
+            ctx.fillRect(cp.x - 3, cp.y - 3, 6, 6)
           }
         }
       }
 
-      // Highlight active step point/segment (e.g. midpoint or intersection)
       if (activeStep?.highlightSegment) {
         const a = toScreen(activeStep.highlightSegment[0])
         const b = toScreen(activeStep.highlightSegment[1])
@@ -417,18 +386,18 @@ export function ClippingCanvas({
         ctx.beginPath()
         ctx.moveTo(a.x, a.y)
         ctx.lineTo(b.x, b.y)
-        ctx.strokeStyle = '#a78bfa'
-        ctx.lineWidth = 4.5
+        ctx.strokeStyle = '#e4e4e7'
+        ctx.lineWidth = 4
         ctx.stroke()
         ctx.restore()
       }
       if (activeStep?.highlightPoint) {
         const hp = toScreen(activeStep.highlightPoint)
         ctx.beginPath()
-        ctx.arc(hp.x, hp.y, 6, 0, Math.PI * 2)
-        ctx.fillStyle = '#a78bfa'
+        ctx.arc(hp.x, hp.y, 5, 0, Math.PI * 2)
+        ctx.fillStyle = '#ffffff'
         ctx.fill()
-        ctx.strokeStyle = '#ffffff'
+        ctx.strokeStyle = '#09090b'
         ctx.lineWidth = 1.5
         ctx.stroke()
       }
@@ -496,7 +465,7 @@ export function ClippingCanvas({
   return (
     <div
       ref={containerRef}
-      className="relative h-[460px] w-full overflow-hidden rounded-xl border border-slate-700/60 bg-[#070b16] lg:h-[560px]"
+      className="relative h-[460px] w-full overflow-hidden rounded-sm border border-zinc-800 bg-[#09090b] lg:h-[540px]"
     >
       <canvas
         ref={canvasRef}
@@ -512,25 +481,25 @@ export function ClippingCanvas({
       />
 
       {/* Legend */}
-      <div className="pointer-events-none absolute top-3 left-3 flex flex-wrap gap-3 rounded-lg border border-slate-700/70 bg-slate-950/80 px-3 py-1.5 text-xs backdrop-blur">
-        <span className="flex items-center gap-1.5 text-cyan-300">
-          <span className="inline-block h-2.5 w-2.5 rounded-xs border border-cyan-400 bg-cyan-400/30" />
+      <div className="pointer-events-none absolute top-2.5 left-2.5 flex flex-wrap gap-3 rounded-sm border border-zinc-800 bg-zinc-950/90 px-2.5 py-1 text-[11px] text-zinc-300">
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block h-2.5 w-2.5 border border-zinc-400 bg-white/5" />
           Отсекатель
         </span>
-        <span className="flex items-center gap-1.5 text-amber-300">
-          <span className="inline-block h-0.5 w-4 border-t-2 border-dashed border-amber-400" />
+        <span className="flex items-center gap-1.5 text-zinc-400">
+          <span className="inline-block h-0.5 w-4 border-t border-dashed border-zinc-500" />
           Исходные
         </span>
-        <span className="flex items-center gap-1.5 text-emerald-300">
-          <span className="inline-block h-0.5 w-4 bg-emerald-400" />
-          Видимые части
+        <span className="flex items-center gap-1.5 text-white">
+          <span className="inline-block h-0.5 w-4 bg-white" />
+          Видимые
         </span>
       </div>
 
       {/* Cursor HUD */}
       {cursorWorld && (
-        <div className="pointer-events-none absolute right-3 bottom-3 rounded-md border border-slate-700/70 bg-slate-950/85 px-2.5 py-1 font-mono text-xs text-slate-300">
-          x: {fmtNum(cursorWorld.x, 2)} &nbsp; y: {fmtNum(cursorWorld.y, 2)}
+        <div className="pointer-events-none absolute right-2.5 bottom-2.5 rounded-sm border border-zinc-800 bg-zinc-950/90 px-2 py-0.5 font-mono text-[11px] text-zinc-300">
+          {fmtNum(cursorWorld.x, 2)}, {fmtNum(cursorWorld.y, 2)}
         </div>
       )}
     </div>

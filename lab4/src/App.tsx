@@ -2,11 +2,7 @@ import { useMemo, useState } from 'react'
 import { ClippingCanvas } from './components/ClippingCanvas.tsx'
 import { clipCohenSutherland } from './core/cohenSutherland.ts'
 import { clipCyrusBeck } from './core/cyrusBeck.ts'
-import {
-  fmtPt,
-  isConvexPolygon,
-  rectToPolygon,
-} from './core/geometry.ts'
+import { fmtPt, isConvexPolygon, rectToPolygon } from './core/geometry.ts'
 import { clipLiangBarsky } from './core/liangBarsky.ts'
 import { clipMidpoint } from './core/midpoint.ts'
 import { parseLab4Input } from './core/parser.ts'
@@ -23,55 +19,16 @@ import type {
 interface AlgorithmMeta {
   id: AlgorithmId
   part: 1 | 2
-  title: string
   short: string
   badge?: string
-  description: string
 }
 
 const ALGORITHMS: AlgorithmMeta[] = [
-  {
-    id: 'midpoint',
-    part: 1,
-    title: 'Алгоритм средней точки',
-    short: 'Средняя точка',
-    badge: 'Вариант 3',
-    description:
-      'Рекурсивное деление отрезка пополам с 4-битовыми кодами концов (TBRL) до достижения точности ε.',
-  },
-  {
-    id: 'cohen-sutherland',
-    part: 1,
-    title: 'Алгоритм Сазерленда-Коэна',
-    short: 'Сазерленд-Коэн',
-    description:
-      'Отсечение прямоугольным окном через коды областей и явное уравнение прямой y = y1 + k(x − x1).',
-  },
-  {
-    id: 'liang-barsky',
-    part: 1,
-    title: 'Алгоритм Лианга-Барски',
-    short: 'Лианг-Барски',
-    description:
-      'Параметрическое задание отрезка P(t) = P1 + t(P2 − P1), t ∈ [0, 1], сужение интервала [t0, t1].',
-  },
-  {
-    id: 'sutherland-hodgman',
-    part: 2,
-    title: 'Отсечение выпуклого многоугольника',
-    short: 'Сазерленд-Ходжмен',
-    badge: 'Вариант 3',
-    description:
-      'Последовательное отсечение вершин многоугольника каждой границей отсекающего окна/выпуклого отсекателя.',
-  },
-  {
-    id: 'cyrus-beck',
-    part: 2,
-    title: 'Отсечение отрезков выпуклым многоугольником',
-    short: 'Кирус-Бек',
-    description:
-      'Параметрическое отсечение отрезков произвольным выпуклым многоугольником через внутренние нормали к рёбрам.',
-  },
+  { id: 'midpoint', part: 1, short: 'Средняя точка', badge: 'В3' },
+  { id: 'cohen-sutherland', part: 1, short: 'Сазерленд-Коэн' },
+  { id: 'liang-barsky', part: 1, short: 'Лианг-Барски' },
+  { id: 'sutherland-hodgman', part: 2, short: 'Сазерленд-Ходжмен', badge: 'В3' },
+  { id: 'cyrus-beck', part: 2, short: 'Кирус-Бек' },
 ]
 
 function pointsToText(pts: Point[]): string {
@@ -88,22 +45,10 @@ function parsePointsText(text: string): Point[] {
     .map(([x, y]) => ({ x, y }))
 }
 
-const STATUS_BADGE: Record<
-  'accepted' | 'clipped' | 'rejected',
-  { label: string; cls: string }
-> = {
-  accepted: {
-    label: 'Принят',
-    cls: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-  },
-  clipped: {
-    label: 'Отсечён',
-    cls: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-  },
-  rejected: {
-    label: 'Отброшен',
-    cls: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
-  },
+const STATUS_LABEL: Record<'accepted' | 'clipped' | 'rejected', string> = {
+  accepted: 'Принят',
+  clipped: 'Отсечён',
+  rejected: 'Отброшен',
 }
 
 export default function App() {
@@ -156,8 +101,6 @@ export default function App() {
     if (algorithm !== 'sutherland-hodgman') return null
     return clipSutherlandHodgman(subjectPolygon, activeClipPolygon)
   }, [algorithm, subjectPolygon, activeClipPolygon])
-
-  const activeMeta = ALGORITHMS.find((a) => a.id === algorithm) ?? ALGORITHMS[0]
 
   const selectedSegmentResult = useMemo(() => {
     if (segmentResults.length === 0) return null
@@ -214,40 +157,33 @@ export default function App() {
     algorithm === 'cyrus-beck' || (isPolygonMode && !useRectClipper)
 
   return (
-    <div className="min-h-screen px-4 py-5 md:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1440px] space-y-5">
+    <div className="min-h-screen bg-[#09090b] px-4 py-4 text-zinc-100 md:px-6">
+      <div className="mx-auto max-w-[1440px] space-y-4">
         {/* Header */}
-        <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-700/60 bg-slate-900/65 px-5 py-4 backdrop-blur">
-          <div>
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-lg font-semibold tracking-tight text-slate-100 md:text-xl">
-                Лабораторная работа 4 — Алгоритмы отсечения
-              </h1>
-              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
-                Вариант 3
-              </span>
-            </div>
-            <p className="mt-1 text-sm text-slate-400">
-              {activeMeta.description}
-            </p>
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 pb-3">
+          <div className="flex items-baseline gap-3">
+            <h1 className="text-base font-semibold tracking-tight text-white">
+              Лабораторная работа 4 — Отсечение
+            </h1>
+            <span className="border border-zinc-700 bg-zinc-900 px-2 py-0.5 font-mono text-[11px] text-zinc-300">
+              Вариант 3
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <a
-              href="../"
-              className="rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-slate-500 hover:text-white"
-            >
-              ← Все работы
-            </a>
-          </div>
+          <a
+            href="../"
+            className="border border-zinc-800 bg-zinc-950 px-3 py-1 text-xs text-zinc-400 transition hover:border-zinc-600 hover:text-white"
+          >
+            ← Все работы
+          </a>
         </header>
 
-        {/* Algorithm Switcher */}
+        {/* Algorithm Bar */}
         <section className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-xl border border-slate-700/60 bg-slate-900/55 p-3">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Часть 1 — Отсечение отрезков прямоугольным окном
+          <div className="border border-zinc-800 bg-zinc-950 p-2.5">
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-500">
+              Часть 1 · Отрезки
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {ALGORITHMS.filter((a) => a.part === 1).map((a) => {
                 const active = a.id === algorithm
                 return (
@@ -258,16 +194,20 @@ export default function App() {
                       setAlgorithm(a.id)
                       setActiveStep(null)
                     }}
-                    className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
+                    className={`flex items-center gap-1.5 border px-2.5 py-1 text-xs font-medium transition ${
                       active
-                        ? 'border-cyan-400/60 bg-cyan-500/15 text-cyan-200'
-                        : 'border-slate-700/80 bg-slate-800/60 text-slate-300 hover:border-slate-600'
+                        ? 'border-white bg-white text-zinc-950'
+                        : 'border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-600'
                     }`}
                   >
                     <span>{a.short}</span>
                     {a.badge && (
-                      <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] text-emerald-300">
-                        {a.badge}
+                      <span
+                        className={`font-mono text-[10px] ${
+                          active ? 'text-zinc-600' : 'text-zinc-500'
+                        }`}
+                      >
+                        [{a.badge}]
                       </span>
                     )}
                   </button>
@@ -276,11 +216,11 @@ export default function App() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-700/60 bg-slate-900/55 p-3">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Часть 2 — Выпуклый многоугольник
+          <div className="border border-zinc-800 bg-zinc-950 p-2.5">
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-500">
+              Часть 2 · Выпуклый многоугольник
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {ALGORITHMS.filter((a) => a.part === 2).map((a) => {
                 const active = a.id === algorithm
                 return (
@@ -292,16 +232,20 @@ export default function App() {
                       setActiveStep(null)
                       setFitTrigger((t) => t + 1)
                     }}
-                    className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
+                    className={`flex items-center gap-1.5 border px-2.5 py-1 text-xs font-medium transition ${
                       active
-                        ? 'border-cyan-400/60 bg-cyan-500/15 text-cyan-200'
-                        : 'border-slate-700/80 bg-slate-800/60 text-slate-300 hover:border-slate-600'
+                        ? 'border-white bg-white text-zinc-950'
+                        : 'border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-600'
                     }`}
                   >
                     <span>{a.short}</span>
                     {a.badge && (
-                      <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] text-emerald-300">
-                        {a.badge}
+                      <span
+                        className={`font-mono text-[10px] ${
+                          active ? 'text-zinc-600' : 'text-zinc-500'
+                        }`}
+                      >
+                        [{a.badge}]
                       </span>
                     )}
                   </button>
@@ -312,17 +256,17 @@ export default function App() {
         </section>
 
         {/* Main Grid */}
-        <div className="grid gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
-          {/* Left Panel: Inputs */}
-          <aside className="space-y-4 rounded-2xl border border-slate-700/60 bg-slate-900/60 p-4">
+        <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
+          {/* Left Panel */}
+          <aside className="space-y-3 border border-zinc-800 bg-zinc-950 p-3">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <label className="mb-1 block text-[11px] font-medium uppercase tracking-wider text-zinc-500">
                 Набор данных
               </label>
               <select
                 value={presetId}
                 onChange={(e) => handlePresetChange(e.target.value)}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950/80 px-3 py-2 text-sm text-slate-200 outline-none focus:border-cyan-400"
+                className="w-full border border-zinc-800 bg-zinc-900 px-2.5 py-1.5 text-xs text-zinc-200 outline-none focus:border-zinc-500"
               >
                 {SCENE_PRESETS.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -335,8 +279,8 @@ export default function App() {
               </select>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <label className="flex-1 cursor-pointer rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-1.5 text-center text-xs font-medium text-slate-200 transition hover:border-cyan-400/60">
+            <div className="flex gap-1.5">
+              <label className="flex-1 cursor-pointer border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-center text-xs text-zinc-300 transition hover:border-zinc-600 hover:text-white">
                 Загрузить .txt
                 <input
                   type="file"
@@ -348,17 +292,17 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleDownloadSample}
-                className="rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-slate-500"
+                className="border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-xs text-zinc-300 transition hover:border-zinc-600 hover:text-white"
               >
                 Скачать .txt
               </button>
             </div>
 
             {algorithm === 'midpoint' && (
-              <div className="rounded-xl border border-slate-700/70 bg-slate-950/50 p-3">
+              <div className="border border-zinc-800 bg-zinc-900/60 p-2.5">
                 <div className="mb-1 flex items-center justify-between text-xs">
-                  <span className="text-slate-300">Точность деления ε</span>
-                  <span className="font-mono text-cyan-300">{midpointEps}</span>
+                  <span className="text-zinc-400">Точность ε</span>
+                  <span className="font-mono text-zinc-100">{midpointEps}</span>
                 </div>
                 <input
                   type="range"
@@ -367,18 +311,18 @@ export default function App() {
                   step={0.001}
                   value={midpointEps}
                   onChange={(e) => setMidpointEps(Number(e.target.value))}
-                  className="w-full accent-cyan-400"
+                  className="w-full accent-white"
                 />
               </div>
             )}
 
             {!isPolygonMode ? (
               <div>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                    Входной файл (n, отрезки, окно)
+                <div className="mb-1 flex items-center justify-between">
+                  <label className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">
+                    Входной файл
                   </label>
-                  <span className="font-mono text-[11px] text-slate-500">
+                  <span className="font-mono text-[11px] text-zinc-500">
                     {parsed.segments.length} отр.
                   </span>
                 </div>
@@ -390,10 +334,10 @@ export default function App() {
                   }}
                   rows={9}
                   spellCheck={false}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950/90 p-3 font-mono text-xs leading-relaxed text-slate-200 outline-none focus:border-cyan-400"
+                  className="w-full border border-zinc-800 bg-zinc-900 p-2.5 font-mono text-xs leading-relaxed text-zinc-200 outline-none focus:border-zinc-500"
                 />
                 {parsed.warnings.length > 0 && (
-                  <div className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-amber-300">
+                  <div className="mt-2 border border-zinc-700 bg-zinc-900 p-2 text-xs text-zinc-300">
                     {parsed.warnings.map((w, i) => (
                       <div key={i}>{w}</div>
                     ))}
@@ -401,9 +345,9 @@ export default function App() {
                 )}
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  <label className="mb-1 block text-[11px] font-medium uppercase tracking-wider text-zinc-500">
                     Отсекаемый многоугольник (x y)
                   </label>
                   <textarea
@@ -411,17 +355,17 @@ export default function App() {
                     onChange={(e) => setSubjectPolyText(e.target.value)}
                     rows={6}
                     spellCheck={false}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950/90 p-3 font-mono text-xs leading-relaxed text-slate-200 outline-none focus:border-cyan-400"
+                    className="w-full border border-zinc-800 bg-zinc-900 p-2.5 font-mono text-xs leading-relaxed text-zinc-200 outline-none focus:border-zinc-500"
                   />
                 </div>
-                <label className="flex items-center gap-2 text-xs text-slate-300">
+                <label className="flex items-center gap-2 text-xs text-zinc-400">
                   <input
                     type="checkbox"
                     checked={useRectClipper}
                     onChange={(e) => setUseRectClipper(e.target.checked)}
-                    className="accent-cyan-400"
+                    className="accent-white"
                   />
-                  Использовать прямоугольное окно из файла
+                  Прямоугольное окно из файла
                 </label>
               </div>
             )}
@@ -429,15 +373,11 @@ export default function App() {
             {needsConvexClipper && (
               <div>
                 <div className="mb-1 flex items-center justify-between">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  <label className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">
                     Выпуклый отсекатель (x y)
                   </label>
-                  <span
-                    className={`text-[11px] font-medium ${
-                      clipPolygonConvexValid ? 'text-emerald-400' : 'text-rose-400'
-                    }`}
-                  >
-                    {clipPolygonConvexValid ? 'Выпуклый' : 'Невыпуклый!'}
+                  <span className="font-mono text-[11px] text-zinc-400">
+                    {clipPolygonConvexValid ? 'OK' : 'Невыпуклый'}
                   </span>
                 </div>
                 <textarea
@@ -445,55 +385,46 @@ export default function App() {
                   onChange={(e) => setClipPolyText(e.target.value)}
                   rows={5}
                   spellCheck={false}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950/90 p-3 font-mono text-xs leading-relaxed text-slate-200 outline-none focus:border-cyan-400"
+                  className="w-full border border-zinc-800 bg-zinc-900 p-2.5 font-mono text-xs leading-relaxed text-zinc-200 outline-none focus:border-zinc-500"
                 />
               </div>
             )}
           </aside>
 
-          {/* Right Panel: Canvas + Results */}
+          {/* Right Panel */}
           <main className="space-y-4">
-            <div className="rounded-2xl border border-slate-700/60 bg-slate-900/55 p-3">
-              <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2 px-1">
-                <div className="flex flex-wrap items-center gap-2 text-xs">
+            <div className="border border-zinc-800 bg-zinc-950 p-3">
+              <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
                   {!isPolygonMode ? (
                     <>
-                      <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-emerald-300">
+                      <span className="border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-zinc-200">
                         Принято: {counts.accepted}
                       </span>
-                      <span className="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-cyan-300">
+                      <span className="border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-zinc-200">
                         Отсечено: {counts.clipped}
                       </span>
-                      <span className="rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-rose-300">
+                      <span className="border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-zinc-500">
                         Отброшено: {counts.rejected}
                       </span>
                     </>
                   ) : (
                     polygonResult && (
-                      <span
-                        className={`rounded-md border px-2 py-0.5 ${
-                          STATUS_BADGE[polygonResult.status].cls
-                        }`}
-                      >
-                        {STATUS_BADGE[polygonResult.status].label} · Вершин результата:{' '}
+                      <span className="border border-zinc-800 bg-zinc-900 px-2 py-0.5 text-zinc-200">
+                        {STATUS_LABEL[polygonResult.status]} · Вершин:{' '}
                         {polygonResult.clipped.length}
                       </span>
                     )
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="hidden text-xs text-slate-400 sm:inline">
-                    Колёсико — масштаб, перетаскивание — сдвиг
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setFitTrigger((t) => t + 1)}
-                    className="rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-xs font-medium text-slate-200 transition hover:border-cyan-400/60"
-                  >
-                    По размеру сцены
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setFitTrigger((t) => t + 1)}
+                  className="border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-xs text-zinc-300 transition hover:border-zinc-600 hover:text-white"
+                >
+                  По размеру сцены
+                </button>
               </div>
 
               <ClippingCanvas
@@ -509,18 +440,16 @@ export default function App() {
               />
             </div>
 
-            {/* Results & Steps */}
+            {/* Results & Trace */}
             <div className="grid gap-4 xl:grid-cols-2">
-              {/* Summary List */}
-              <div className="rounded-2xl border border-slate-700/60 bg-slate-900/55 p-4">
-                <h2 className="mb-3 text-sm font-semibold text-slate-200">
-                  {isPolygonMode ? 'Вершины отсечённого многоугольника' : 'Результаты отсечения отрезков'}
+              <div className="border border-zinc-800 bg-zinc-950 p-3">
+                <h2 className="mb-2.5 text-xs font-medium uppercase tracking-wider text-zinc-400">
+                  {isPolygonMode ? 'Вершины результата' : 'Результаты'}
                 </h2>
 
                 {!isPolygonMode ? (
-                  <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
+                  <div className="max-h-60 space-y-1 overflow-y-auto pr-1">
                     {segmentResults.map((res) => {
-                      const badge = STATUS_BADGE[res.status]
                       const selected = selectedSegmentResult?.segmentId === res.segmentId
                       return (
                         <button
@@ -530,57 +459,54 @@ export default function App() {
                             setSelectedSegmentId(res.segmentId)
                             setActiveStep(null)
                           }}
-                          className={`flex w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-xs transition ${
+                          className={`flex w-full items-center justify-between gap-2 border px-2.5 py-1.5 text-left text-xs transition ${
                             selected
-                              ? 'border-cyan-400/60 bg-cyan-500/10'
-                              : 'border-slate-800 bg-slate-950/50 hover:border-slate-700'
+                              ? 'border-white bg-zinc-900'
+                              : 'border-zinc-800/80 bg-zinc-950 hover:border-zinc-700'
                           }`}
                         >
-                          <div>
-                            <div className="font-mono text-slate-200">
+                          <div className="font-mono">
+                            <div className="text-zinc-200">
                               #{res.segmentId}: {fmtPt(res.original.p1)} →{' '}
                               {fmtPt(res.original.p2)}
                             </div>
-                            <div className="mt-0.5 font-mono text-[11px] text-slate-400">
+                            <div className="mt-0.5 text-[11px] text-zinc-500">
                               {res.clipped
-                                ? `Видимая часть: ${fmtPt(res.clipped[0])} → ${fmtPt(res.clipped[1])}`
-                                : 'Невидим'}
+                                ? `${fmtPt(res.clipped[0])} → ${fmtPt(res.clipped[1])}`
+                                : '—'}
                             </div>
                           </div>
-                          <span
-                            className={`shrink-0 rounded-md border px-2 py-0.5 text-[11px] font-medium ${badge.cls}`}
-                          >
-                            {badge.label}
+                          <span className="shrink-0 font-mono text-[11px] text-zinc-400">
+                            {STATUS_LABEL[res.status]}
                           </span>
                         </button>
                       )
                     })}
                   </div>
                 ) : (
-                  <div className="max-h-64 overflow-y-auto font-mono text-xs text-slate-300">
+                  <div className="max-h-60 overflow-y-auto font-mono text-xs text-zinc-300">
                     {polygonResult && polygonResult.clipped.length > 0 ? (
                       <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
                         {polygonResult.clipped.map((p, idx) => (
                           <div
                             key={idx}
-                            className="rounded-lg border border-slate-800 bg-slate-950/60 px-2.5 py-1.5"
+                            className="border border-zinc-800 bg-zinc-900 px-2 py-1"
                           >
                             V{idx + 1}: {fmtPt(p)}
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-slate-400">Многоугольник полностью отброшен.</p>
+                      <p className="text-zinc-500">Многоугольник полностью отброшен.</p>
                     )}
                   </div>
                 )}
               </div>
 
-              {/* Step-by-step trace */}
-              <div className="rounded-2xl border border-slate-700/60 bg-slate-900/55 p-4">
-                <div className="mb-3 flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-slate-200">
-                    Пошаговая трассировка{' '}
+              <div className="border border-zinc-800 bg-zinc-950 p-3">
+                <div className="mb-2.5 flex items-center justify-between">
+                  <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-400">
+                    Трассировка{' '}
                     {!isPolygonMode && selectedSegmentResult
                       ? `(#${selectedSegmentResult.segmentId})`
                       : ''}
@@ -589,14 +515,14 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => setActiveStep(null)}
-                      className="text-xs text-cyan-300 hover:underline"
+                      className="text-xs text-zinc-400 hover:text-white"
                     >
-                      Сбросить подсветку
+                      Сбросить
                     </button>
                   )}
                 </div>
 
-                <div className="max-h-64 space-y-1.5 overflow-y-auto pr-1">
+                <div className="max-h-60 space-y-1 overflow-y-auto pr-1">
                   {(isPolygonMode
                     ? polygonResult?.steps ?? []
                     : selectedSegmentResult?.steps ?? []
@@ -607,16 +533,16 @@ export default function App() {
                         key={i}
                         type="button"
                         onClick={() => setActiveStep(isActive ? null : step)}
-                        className={`w-full rounded-lg border px-3 py-2 text-left text-xs transition ${
+                        className={`w-full border px-2.5 py-1.5 text-left text-xs transition ${
                           isActive
-                            ? 'border-violet-400/70 bg-violet-500/15'
-                            : 'border-slate-800 bg-slate-950/50 hover:border-slate-700'
+                            ? 'border-white bg-zinc-900'
+                            : 'border-zinc-800/80 bg-zinc-950 hover:border-zinc-700'
                         }`}
                       >
-                        <div className="font-medium text-slate-200">
+                        <div className="text-zinc-200">
                           {i + 1}. {step.label}
                         </div>
-                        <div className="mt-0.5 font-mono text-[11px] text-slate-400">
+                        <div className="mt-0.5 font-mono text-[11px] text-zinc-500">
                           {step.detail}
                         </div>
                       </button>
