@@ -1,0 +1,122 @@
+{
+  "measuredAt": "2026-11-04T19:24:48.165Z",
+  "runtime": "Node v24.19.0",
+  "cpu": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+  "raw": {
+    "rows": [
+      {
+        "id": "step",
+        "name": "Пошаговый",
+        "pixels": 6894381,
+        "medianMs": 26.496699999999976,
+        "nsPerPixel": 3.84323117622887,
+        "nsPerSegment": 1324.8349999999987,
+        "megapixelsPerSecond": 260.19772273528423
+      },
+      {
+        "id": "dda",
+        "name": "ЦДА (DDA)",
+        "pixels": 6894381,
+        "medianMs": 20.00200000000001,
+        "nsPerPixel": 2.9012031682032093,
+        "nsPerSegment": 1000.1000000000006,
+        "megapixelsPerSecond": 344.68458154184566
+      },
+      {
+        "id": "bresenham",
+        "name": "Брезенхем (отрезок)",
+        "pixels": 6894381,
+        "medianMs": 27.628400000000056,
+        "nsPerPixel": 4.007379342685015,
+        "nsPerSegment": 1381.4200000000028,
+        "megapixelsPerSecond": 249.5396403700535
+      },
+      {
+        "id": "wu",
+        "name": "Ву (сглаживание)",
+        "pixels": 13675008,
+        "medianMs": 70.25610000000006,
+        "nsPerPixel": 5.137554581320908,
+        "nsPerSegment": 3512.805000000003,
+        "megapixelsPerSecond": 194.64513401683254
+      }
+    ],
+    "options": {
+      "segments": 20000,
+      "reps": 11,
+      "maxLen": 512,
+      "seed": 20260214
+    },
+    "checksum": 484,
+    "mode": "raw"
+  },
+  "trace": {
+    "rows": [
+      {
+        "id": "step",
+        "name": "Пошаговый",
+        "pixels": 277998,
+        "medianMs": 42.56880000000001,
+        "nsPerPixel": 153.12628148403948,
+        "nsPerSegment": 53211.00000000001,
+        "megapixelsPerSecond": 6.5305575914754455
+      },
+      {
+        "id": "dda",
+        "name": "ЦДА (DDA)",
+        "pixels": 277998,
+        "medianMs": 33.67280000000005,
+        "nsPerPixel": 121.12605126655606,
+        "nsPerSegment": 42091.000000000065,
+        "megapixelsPerSecond": 8.255862298353556
+      },
+      {
+        "id": "bresenham",
+        "name": "Брезенхем (отрезок)",
+        "pixels": 277998,
+        "medianMs": 25.751199999999926,
+        "nsPerPixel": 92.63088223656258,
+        "nsPerSegment": 32188.999999999905,
+        "megapixelsPerSecond": 10.795535742023704
+      },
+      {
+        "id": "wu",
+        "name": "Ву (сглаживание)",
+        "pixels": 277998,
+        "medianMs": 51.32960000000003,
+        "nsPerPixel": 184.64017726746246,
+        "nsPerSegment": 64162.00000000004,
+        "megapixelsPerSecond": 5.415939341042982
+      }
+    ],
+    "options": {
+      "segments": 2000,
+      "reps": 5,
+      "maxLen": 512,
+      "seed": 20260214
+    },
+    "checksum": 0,
+    "mode": "trace"
+  },
+  "circle": {
+    "rows": [
+      {
+        "id": "circle",
+        "name": "Брезенхем (окружность)",
+        "pixels": 272480,
+        "medianMs": 0.6338000000000648,
+        "nsPerPixel": 2.3260422783325923,
+        "nsPerSegment": 2112.6666666668825,
+        "megapixelsPerSecond": 429.9147996212877
+      }
+    ],
+    "options": {
+      "segments": 300,
+      "reps": 11,
+      "maxLen": 512,
+      "seed": 20260214
+    },
+    "checksum": 3003,
+    "mode": "raw"
+  }
+}

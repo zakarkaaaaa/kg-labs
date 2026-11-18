@@ -27,16 +27,40 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
           cache-dependency-path: lab1/package-lock.json
 
-      - name: Install dependencies
+      - name: Install dependencies (Lab 1)
         working-directory: ./lab1
         run: npm ci
 
       - name: Build Lab 1
         working-directory: ./lab1
+        run: npm run build
+
+      - name: Install dependencies (Lab 2)
+        working-directory: ./lab2
+        run: npm install
+
+      - name: Build Lab 2
+        working-directory: ./lab2
+        run: npm run build
+
+      - name: Install dependencies (Lab 3)
+        working-directory: ./lab3
+        run: npm ci
+
+      - name: Build Lab 3
+        working-directory: ./lab3
+        run: npm run build
+
+      - name: Install dependencies (Lab 4)
+        working-directory: ./lab4
+        run: npm ci
+
+      - name: Build Lab 4
+        working-directory: ./lab4
         run: npm run build
 
       - name: Prepare site directory
@@ -45,6 +69,18 @@ jobs:
           cp -r lab1/dist/* _site/lab1/
           mkdir -p _site/1
           cp -r lab1/dist/* _site/1/
+          mkdir -p _site/lab2
+          cp -r lab2/dist/* _site/lab2/
+          mkdir -p _site/2
+          cp -r lab2/dist/* _site/2/
+          mkdir -p _site/lab3
+          cp -r lab3/dist/* _site/lab3/
+          mkdir -p _site/3
+          cp -r lab3/dist/* _site/3/
+          mkdir -p _site/lab4
+          cp -r lab4/dist/* _site/lab4/
+          mkdir -p _site/4
+          cp -r lab4/dist/* _site/4/
           if [ -f index.html ]; then
             cp index.html _site/index.html
           fi

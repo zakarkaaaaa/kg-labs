@@ -2,7 +2,6 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=./lab1/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Компьютерная графика — Лабораторные работы</title>
   <style>
@@ -15,28 +14,75 @@
       margin: 0;
       background: #0f172a;
       color: #f8fafc;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .container {
+      max-width: 720px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: 2rem;
+    }
+    .subtitle {
+      color: #94a3b8;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
     }
     .card {
       background: #1e293b;
-      padding: 2.5rem;
+      padding: 2rem;
       border-radius: 16px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-      text-align: center;
-      max-width: 420px;
+      text-align: left;
       border: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, border-color 0.2s;
     }
-    h1 {
-      margin: 0 0 1rem;
-      font-size: 1.5rem;
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #3b82f6;
     }
-    p {
+    .card h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.25rem;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      background: #1e3a8a;
+      color: #60a5fa;
+    }
+    .badge.green {
+      background: #064e3b;
+      color: #34d399;
+    }
+    .card p {
       color: #94a3b8;
-      font-size: 0.95rem;
-      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 0 0 1.5rem;
+      flex-grow: 1;
     }
     .btn {
-      display: inline-block;
-      padding: 0.8rem 1.6rem;
+      display: block;
+      text-align: center;
+      padding: 0.75rem 1.25rem;
       background: #2563eb;
       color: #fff;
       text-decoration: none;
@@ -50,10 +96,43 @@
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="container">
     <h1>Компьютерная графика</h1>
-    <p>Перенаправление на первую лабораторную работу...</p>
-    <a class="btn" href="./lab1/">Открыть Лабораторную 1</a>
+    <p class="subtitle">Лабораторные работы и интерактивные веб-приложения</p>
+    
+    <div class="grid">
+      <div class="card">
+        <div>
+          <h2>Лабораторная 1 <span class="badge">RGB / CMYK / HLS</span></h2>
+          <p>Цветовые модели и конвертация цветовых пространств с интерактивным выбором и валидацией.</p>
+        </div>
+        <a class="btn" href="./lab1/">Открыть Лабораторную 1 →</a>
+      </div>
+
+      <div class="card">
+        <div>
+          <h2>Лабораторная 2 <span class="badge green">Вариант 3</span></h2>
+          <p>Высокочастотные фильтры резкости, линейное контрастирование, построение и эквализация гистограмм (RGB vs HSV).</p>
+        </div>
+        <a class="btn" href="./lab2/">Открыть Лабораторную 2 →</a>
+      </div>
+
+      <div class="card">
+        <div>
+          <h2>Лабораторная 3 <span class="badge green">Растеризация</span></h2>
+          <p>Пошаговый алгоритм, ЦДА, Брезенхем для отрезка и окружности, сглаживание Ву. Сетка, оси, масштаб, пошаговые вычисления и замеры времени.</p>
+        </div>
+        <a class="btn" href="./lab3/">Открыть Лабораторную 3 →</a>
+      </div>
+
+      <div class="card">
+        <div>
+          <h2>Лабораторная 4 <span class="badge green">Вариант 3</span></h2>
+          <p>Алгоритмы отсечения отрезков и многоугольников: средняя точка, Сазерленда-Коэна, Лианга-Барски, Кируса-Бека и Сазерленда-Ходжмена.</p>
+        </div>
+        <a class="btn" href="./lab4/">Открыть Лабораторную 4 →</a>
+      </div>
+    </div>
   </div>
 </body>
 </html>

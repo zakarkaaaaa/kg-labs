@@ -1,0 +1,13 @@
+.app-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 16px 24px;
+}
+
+.ant-card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.ant-tabs-nav {
+  margin-bottom: 16px !important;
+}
