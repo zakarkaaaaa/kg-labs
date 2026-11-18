@@ -147,9 +147,52 @@ export function applyConvolution(
   return result;
 }
 
+function gaussianBlur5x5(src: ImageData): ImageData {
+  const kernel = [
+    [1, 4, 6, 4, 1],
+    [4, 16, 24, 16, 4],
+    [6, 24, 36, 24, 6],
+    [4, 16, 24, 16, 4],
+    [1, 4, 6, 4, 1],
+  ];
+  const divisor = 256;
+  const { width, height, data: srcData } = src;
+  const result = cloneImageData(src);
+  const dstData = result.data;
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let sumR = 0;
+      let sumG = 0;
+      let sumB = 0;
+
+      for (let ky = -2; ky <= 2; ky++) {
+        const sy = Math.max(0, Math.min(height - 1, y + ky));
+        const row = kernel[ky + 2];
+        for (let kx = -2; kx <= 2; kx++) {
+          const sx = Math.max(0, Math.min(width - 1, x + kx));
+          const idx = (sy * width + sx) * 4;
+          const w = row[kx + 2];
+          sumR += srcData[idx] * w;
+          sumG += srcData[idx + 1] * w;
+          sumB += srcData[idx + 2] * w;
+        }
+      }
+
+      const dstIdx = (y * width + x) * 4;
+      dstData[dstIdx] = Math.round(sumR / divisor);
+      dstData[dstIdx + 1] = Math.round(sumG / divisor);
+      dstData[dstIdx + 2] = Math.round(sumB / divisor);
+      dstData[dstIdx + 3] = srcData[dstIdx + 3];
+    }
+  }
+
+  return result;
+}
+
 /**
  * Unsharp Masking (Нерезкое маскирование)
- * 1. Blur the original image
+ * 1. Blur the original image (5x5 Gaussian)
  * 2. High-pass mask = Original - Blurred
  * 3. Result = Original + amount * mask (with optional threshold)
  */
@@ -158,12 +201,7 @@ export function applyUnsharpMask(
   amount: number = 1.5,
   threshold: number = 0
 ): ImageData {
-  // Step 1: Create blurred version using Gaussian kernel
-  const blurred = applyConvolution(
-    src,
-    PRESET_KERNELS.gaussianBlur.kernel,
-    PRESET_KERNELS.gaussianBlur.divisor
-  );
+  const blurred = gaussianBlur5x5(src);
 
   const result = cloneImageData(src);
   const srcData = src.data;

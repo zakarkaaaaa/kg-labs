@@ -55,7 +55,7 @@ export const App: React.FC = () => {
   const [selectedPresetKey, setSelectedPresetKey] = useState<string>('sharpenStrong');
   const [tunableStrength, setTunableStrength] = useState<number>(1.0);
   const [unsharpAmount, setUnsharpAmount] = useState<number>(1.5);
-  const [unsharpThreshold, setUnsharpThreshold] = useState<number>(2);
+  const [unsharpThreshold, setUnsharpThreshold] = useState<number>(0);
   const [customKernel, setCustomKernel] = useState<Kernel3x3>([
     [-1, -1, -1],
     [-1, 9, -1],
