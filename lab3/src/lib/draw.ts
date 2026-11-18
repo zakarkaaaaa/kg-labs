@@ -260,9 +260,6 @@ const drawPixels = (ctx: CanvasRenderingContext2D, scene: Scene): void => {
       const alpha = pixel.alpha;
 
       if (isCurrent) {
-        ctx.save();
-        ctx.shadowColor = hexToRgba(color, 0.85);
-        ctx.shadowBlur = Math.min(24, scale * 0.55);
         ctx.fillStyle = hexToRgba(color, Math.min(1, 0.95 * alpha + 0.08));
         ctx.beginPath();
         ctx.roundRect(
@@ -273,7 +270,6 @@ const drawPixels = (ctx: CanvasRenderingContext2D, scene: Scene): void => {
           radius,
         );
         ctx.fill();
-        ctx.restore();
       } else {
         ctx.fillStyle = hexToRgba(color, 0.9 * alpha);
         ctx.beginPath();
