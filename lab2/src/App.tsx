@@ -167,7 +167,7 @@ export const App: React.FC = () => {
     }
     return [
       { label: 'Оригинал', data: originalImage },
-      { label: 'Лапласиан', data: applyConvolution(originalImage, PRESET_KERNELS.laplacian.kernel, PRESET_KERNELS.laplacian.divisor, PRESET_KERNELS.laplacian.offset) },
+      { label: 'Лапласиан', data: applyConvolution(originalImage, PRESET_KERNELS.laplacianEdges.kernel, PRESET_KERNELS.laplacianEdges.divisor, PRESET_KERNELS.laplacianEdges.offset) },
       { label: 'Резкость 3×3', data: applyConvolution(originalImage, PRESET_KERNELS.sharpenStrong.kernel, PRESET_KERNELS.sharpenStrong.divisor, PRESET_KERNELS.sharpenStrong.offset) },
       { label: 'Unsharp Mask', data: applyUnsharpMask(originalImage, 1.5, 2) },
     ];
